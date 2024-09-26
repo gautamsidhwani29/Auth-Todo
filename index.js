@@ -1,24 +1,36 @@
-const express = require('express');
+import express from 'express';
 const app = express();
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
+import path from 'path'
+import dotenv from 'dotenv';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { UserModel } from './db.js';
+import { signupSchema, loginSchema } from './validationSchema.js';
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
+import { Op } from 'sequelize';
+import { authenticate } from './authenticate.js';
 const port = process.env.PORT;
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const {UserModel} = require('../practice/db');
-const {z} = require('zod');
-const bcrypt = require('bcrypt');
-const { default: mongoose } = require('mongoose');
-require('dotenv').config();
+import { fileURLToPath } from 'url';
+dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cookieParser());
 
-const main = async()=>{
-await mongoose.connect(process.env.MONGO_URL);
-console.log("Connected to Mongo Db ")
-app.listen(port, () => { console.log(`Running on ${port}`) });
+const main = async () => {
+    await mongoose.connect(process.env.MONGO_URL);
+    console.log("Connected to Mongo Db ")
+    app.listen(port, () => { console.log(`Running on ${port}`) });
 }
+main();
 
 const reqDetailLogger = (req, res, next) => {
     const { url, method } = req;
@@ -52,43 +64,99 @@ app.use(cors(corsOptions));
 
 app.use(limiter);
 
-app.use(session({
-    secret : process.env.SESSION_SECRET,
-    resave : false,
-    saveUninitialized : true,
-    cookie : {
-        secure : false,
-        httpOnly : true,
-        maxAge : 30 * 60 *1000
-    }
-}))
+app.get('/home', reqDetailLogger, (req, res) => {
+    res.send("Home Route")
+})
 
-app.post('/signup',(req,res)=>{
+app.post('/signup', reqDetailLogger, async (req, res) => {
+    try {
+        const { success, error, data } = signupSchema.safeParse(req.body);
+        const { username, email, password } = data;
+        const existingUser = await UserModel.findOne({
+            where: {
+                [Op.or]: [
+                    { email },
+                    { username }
+                ]
+            }
+        });
+        if (existingUser) {
+            res.status(409).json({ message: "Email or Username Taken" });
+            return
+        }
+        const hashedPassword = await bcrypt.hash(password, 5);
+        const user = await UserModel.create({
+            username,
+            email,
+            password: hashedPassword
+        });
+        res.status(201).json({ message: 'User created successfully', username: user.username });
+    }
+    catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+
 
 })
 
 
-app.post('/login',reqDetailLogger,(req,res)=>{
-    const {userId,username}  = req.body;
+app.post('/login', reqDetailLogger, async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            res.status(401).json({ message: "Invalid Username" })
+            return;
+        }
+        const matchedPassword = await bcrypt.compare(password, user.password);
+        if (!matchedPassword) {
+            res.status(401).json({ message: "Invalid password" });
+        }
 
-    req.session.userId = userId
-    req.session.username = username
-    res.send("User Logged In And Session started!");
+        const token = jwt.sign({
+            id: user._id,
+            username : user.username
+
+        }, process.env.SECRET_KEY);
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000
+        })
+        return res.json({
+            message: "Logged In Successfully!",
+            username: user.username
+        })
+    }
+    catch (e) {
+        console.error('Login error:', e);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
-app.get('/profile',reqDetailLogger, (req,res)=>{
-    if(req.session.userId){
-        res.send(`Welcome ${req.session.username}`)
-    } else{
-        res.status(401).send('Unauthorized: No session found.');
-    }
+app.get('/signup',(req,res)=>{
+    res.sendFile(path.join(__dirname, 'public' , 'signup.html'));
+});
+
+app.get('/login',(req,res)=>{
+    res.sendFile(path.join(__dirname, 'public' , 'login.html'));
+});
+
+app.get('/todo',authenticate,(req,res)=>{
+    res.sendFile(path.join(__dirname,'public','todo.html'));
 })
 
-app.post('/logout',reqDetailLogger, (req, res) => {
-    req.session.destroy(err => {
-      if (err) {
-        return res.status(500).send('Could not log out.');
-      }
-      res.send('Logged out successfully.');
-    });
+
+app.get('/authorized', authenticate, reqDetailLogger, (req, res) => {
+    const username = req.user.username;
+    console.log(username)
+    res.json({
+        message : `Welcome, ${username} You have permission to this route`
+    })
+})
+
+
+app.post('/logout', reqDetailLogger, (req, res) => {
+
 });
