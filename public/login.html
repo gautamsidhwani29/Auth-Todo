@@ -55,9 +55,8 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-            
-            // Logic for form submission
+            event.preventDefault(); 
+        
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
@@ -72,6 +71,8 @@
                 if (response.ok) {
                     window.location.href = '/todo';
                 } else {
+
+
                     alert('Login failed. Please check your credentials.');
                 }
             })

@@ -26,6 +26,3 @@ const TodosSchema = new Schema({
 export const TodoModel = mongoose.model('Todo',TodosSchema);
 
 
-// module.exports = {
-//     UserModel
-// }

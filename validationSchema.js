@@ -12,6 +12,3 @@ export const loginSchema = z.object({
   password : z.string()
 })
 
-
-
-// module.exports = { signupSchema, loginSchema };
