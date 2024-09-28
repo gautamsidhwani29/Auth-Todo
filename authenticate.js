@@ -7,7 +7,8 @@ export const authenticate = (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ message: 'Not Authenticated' });
+        console.log("Login first")
+        res.redirect('/login');
     }
 
     try {

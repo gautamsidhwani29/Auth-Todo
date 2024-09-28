@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import { UserModel } from './db.js';
+import { UserModel, TodoModel } from './db.js';
 import { signupSchema, loginSchema } from './validationSchema.js';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
@@ -40,7 +40,7 @@ const reqDetailLogger = (req, res, next) => {
 }
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 60 * 60 * 1000,
     max: 50,
     message: "Try After 15 mins "
 });
@@ -106,7 +106,7 @@ app.post('/login', reqDetailLogger, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email });
         if (!user) {
-            res.status(401).json({ message: "Invalid Username" })
+            res.status(401).json({ message: "Incorrect Email" })
             return;
         }
         const matchedPassword = await bcrypt.compare(password, user.password);
@@ -116,7 +116,7 @@ app.post('/login', reqDetailLogger, async (req, res) => {
 
         const token = jwt.sign({
             id: user._id,
-            username : user.username
+            username: user.username
 
         }, process.env.SECRET_KEY);
         res.cookie('token', token, {
@@ -135,28 +135,58 @@ app.post('/login', reqDetailLogger, async (req, res) => {
     }
 });
 
-app.get('/signup',(req,res)=>{
-    res.sendFile(path.join(__dirname, 'public' , 'signup.html'));
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-app.get('/login',(req,res)=>{
-    res.sendFile(path.join(__dirname, 'public' , 'login.html'));
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.get('/todo',authenticate,(req,res)=>{
-    res.sendFile(path.join(__dirname,'public','todo.html'));
+app.get('/todo', authenticate, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 })
 
 
 app.get('/authorized', authenticate, reqDetailLogger, (req, res) => {
     const username = req.user.username;
-    console.log(username)
+    console.log(username);
     res.json({
-        message : `Welcome, ${username} You have permission to this route`
+        username
     })
 })
 
+app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
+    try {
+        const user = req.user;
+        const userId = user.id;
+        console.log(user)
+        const { title } = req.body;
+
+        if (!title) {
+            return res.status(400).json({
+                error: "Title is required"
+            }); 
+        }
+
+        const response = await TodoModel.create({ title,
+            userId
+         });
+
+        if (response) {
+            return res.status(201).json({
+                message: `${title} added successfully`
+            });
+        }
+    } catch (e) {
+        console.error("Error adding todo:", e);
+        return res.status(500).json({
+            error: "An error occurred while adding the todo"
+        });
+    }
+});
+
 
 app.post('/logout', reqDetailLogger, (req, res) => {
-
+    res.clearCookie('token');
 });

@@ -1,62 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
         body {
-            background-color: #121212; /* Dark background */
-            color: white; /* White text for visibility */
+            background-color: #121212;
+            /* Dark background */
+            color: white;
+            /* White text for visibility */
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            background-image: url(img.jpg);
         }
+
         form {
             display: flex;
             flex-direction: column;
             gap: 10px;
             padding: 20px;
             border-radius: 5px;
-            background-color: #1e1e1e; /* Slightly lighter dark background */
+            background-color: #1e1e1e;
+            /* Slightly lighter dark background */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
+
         input {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #2a2a2a; /* Darker input field */
-            color: white; /* White text */
+            background-color: #2a2a2a;
+            /* Darker input field */
+            color: white;
+            /* White text */
         }
+
         button {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #6200ea; /* Primary button color */
+            background-color: #6200ea;
+            /* Primary button color */
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         button:hover {
-            background-color: #3700b3; /* Darker button on hover */
+            background-color: #3700b3;
+            /* Darker button on hover */
+        }
+        .signup{
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
     <form id="loginForm">
         <h2>Login</h2>
         <input type="email" placeholder="Email" name="email" required>
         <input type="password" placeholder="Password" name="password" required>
         <button type="submit">Login</button>
+        <p>Don't have an account ? <a onclick="signup()" class="signup">Sign Up</a></p>
     </form>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault(); 
-        
+        const signup = ()=>{
+            window.location.href = '/signup'
+        }      
+          document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
@@ -67,19 +90,20 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/todo';
-                } else {
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/todo';
+                    } else {
 
 
-                    alert('Login failed. Please check your credentials.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                        alert('Login failed. Please check your credentials.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
     </script>
 </body>
+
 </html>
