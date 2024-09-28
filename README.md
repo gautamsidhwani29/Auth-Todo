@@ -1,6 +1,4 @@
-Here’s a README for the Express.js application you've shared:
 
----
 
 # README for Todo Application
 
