@@ -11,10 +11,57 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        #profile-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        #profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #ccc;
+            /* Optional styling */
+        }
+
+        #profile-upload {
+            display: none;
+        }
+
+        #upload-btn {
+            margin-left: 10px;
+            /* Space between image and button */
+        }
+
+        body {
+            font-family: 'Oswald';
+        }
+
+        .pfpText {
+            color: white;
+            margin-left: 10px;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div id="profile-container">
+        <img id="profile-pic" src="pfp.png"
+        alt="Profile Picture" />
+        <h3 class="pfpText"></h3>
+        <input type="file" id="profile-upload" accept="image/*" />
     </div>
+    
+
     <button class="logout" onclick="logout()">Logout</button>
     <h1 class="greet"></h1>
     <div class="todoApp">
@@ -24,35 +71,31 @@
             <button class="btn">ADD</button>
         </div>
         <ul>
-
         </ul>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="todo2.js"></script>
 
     <script>
         const greet = async () => {
-            try {
-                const response = await axios.get('/authorized')
-                let user = response.data.user;
-                const h1 = document.querySelector('.greet');
-                h1.textContent = `Welcome ${user.username}!` ;
-                document.querySelector('.container').prepend(h1);
-            }
-            catch (e) {
-                return ({
-                    error: "Some Error Occurred!"
-                })
-            }
-        }
-        greet();
+    try {
+        const response = await axios.get('/authorized');
+        let user = response.data;
+        const h1 = document.querySelector('.greet');
+        h1.textContent = `Welcome ${user.userDetails.username}!`;
+    } catch (e) {
+        console.error("Error fetching user data:", e);
+    }
+};
+
+greet();
 
         const logout = async () => {
-            axios.post('/logout');
+            await axios.post('/logout');
             alert("You have been Logged Out Redirecting to the Login Page!");
             window.location.href = '/login';
-        } 
+        }       
     </script>
 
 </body>

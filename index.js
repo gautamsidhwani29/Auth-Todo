@@ -68,10 +68,13 @@ app.get('/home', reqDetailLogger, (req, res) => {
     res.send("Home Route")
 })
 
+
+
 app.post('/signup', reqDetailLogger, async (req, res) => {
     try {
         const { success, error, data } = signupSchema.safeParse(req.body);
         const { username, email, password } = data;
+
         const existingUser = await UserModel.findOne({
             where: {
                 [Op.or]: [
@@ -80,26 +83,26 @@ app.post('/signup', reqDetailLogger, async (req, res) => {
                 ]
             }
         });
+
         if (existingUser) {
-            res.status(409).json({ message: "Email or Username Taken" });
-            return
+            return res.status(409).json({ message: "Email or Username Taken" });
         }
         const hashedPassword = await bcrypt.hash(password, 5);
+
         const user = await UserModel.create({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
         });
-        res.status(201).json({ message: 'User created successfully', username: user.username });
+        return res.status(201).json({ 
+            message: 'User created successfully', 
+            username: user.username,
+            profileImageUrl: user.profileImageUrl
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error', error });
     }
-    catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-
-
-})
-
+});
 
 app.post('/login', reqDetailLogger, async (req, res) => {
     const { email, password } = req.body;
@@ -148,11 +151,12 @@ app.get('/todo', authenticate, (req, res) => {
 })
 
 
-app.get('/authorized', authenticate, reqDetailLogger, (req, res) => {
+app.get('/authorized', authenticate, reqDetailLogger, async(req, res) => {
     const user = req.user;
-    console.log(user);
+    const userDetails  = await UserModel.findById(user.id);
+    // console.log(userDetails); 
     res.json({
-        user
+        userDetails : userDetails
     })
 })
 
@@ -166,13 +170,13 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
         if (!title) {
             return res.status(400).json({
                 error: "Title is required"
-            }); 
+            });
         }
 
         const response = await TodoModel.create({
             title,
             userId
-         });
+        });
 
         if (response) {
             return res.status(201).json({
@@ -187,19 +191,42 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
     }
 });
 
-app.get('/gettodos',authenticate,reqDetailLogger, async (req,res)=>{
+app.get('/gettodos', authenticate, reqDetailLogger, async (req, res) => {
     const user = req.user;
     const userId = user.id;
-    const data = await TodoModel.find({userId});
-    if(data){
+    const data = await TodoModel.find({ userId });
+    if (data) {
         res.json({
-            message : "Fetched Todos",
-            todos : data
+            message: "Fetched Todos",
+            todos: data
         })
     }
 })
 
+app.delete('/deletetodo', authenticate, reqDetailLogger, async(req, res) => {
+    const { todoId } = req.body;
+
+    if (!todoId) {
+        return res.status(400).json({ error: "Todo ID is required" });
+    }
+
+    try {
+        const deletedTodo = await TodoModel.findByIdAndDelete(todoId);
+
+        if (!deletedTodo) {
+            return res.status(404).json({ error: "Todo not found" });
+        }
+
+        res.json({ message: "Todo deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting todo:", error);
+        res.status(500).json({ error: "An error occurred while deleting the todo" });
+    }
+});
+
 
 app.post('/logout', reqDetailLogger, (req, res) => {
     res.clearCookie('token');
+    res.status(200).json({ message: "Logged out successfully" });
 });
+
