@@ -187,8 +187,16 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
     }
 });
 
-app.get('/gettodos',authenticate,reqDetailLogger,(req,res)=>{
-
+app.get('/gettodos',authenticate,reqDetailLogger, async (req,res)=>{
+    const user = req.user;
+    const userId = user.id;
+    const data = await TodoModel.find({userId});
+    if(data){
+        res.json({
+            message : "Fetched Todos",
+            todos : data
+        })
+    }
 })
 
 

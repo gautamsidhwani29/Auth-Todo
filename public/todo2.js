@@ -2,17 +2,17 @@ const input = document.querySelector("#ipbox");
 const ul = document.querySelector("ul");
 const btn = document.querySelector(".btn");
 
-const addTask = async ()=> {
+const addTask = async () => {
     if (input.value === '') {
         alert("Add a valid Task");
     } else {
         const task = document.createElement('li');
         const taskContent = document.createElement('span');
         taskContent.innerText = input.value;
-        taskContent.contentEditable = true; 
+        taskContent.contentEditable = true;
 
-      
-        taskContent.addEventListener('keydown', function(event) {
+
+        taskContent.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
             }
@@ -21,14 +21,14 @@ const addTask = async ()=> {
         const editBtn = document.createElement('button');
         editBtn.innerHTML = "<i class='fa-solid fa-pen-to-square'></i>";
         editBtn.classList.add("edit", "btn");
-        editBtn.addEventListener('click', function() {
-            taskContent.focus(); 
+        editBtn.addEventListener('click', function () {
+            taskContent.focus();
         });
 
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
         deleteBtn.classList.add("delete", "btn");
-        deleteBtn.addEventListener('click', function() {
+        deleteBtn.addEventListener('click', function () {
             task.remove();
         });
 
@@ -40,12 +40,49 @@ const addTask = async ()=> {
     const title = input.value
     const response = await axios.get('/authorized');
     const userId = response.data.user.id;
-    await axios.post('/addtodo',{
+    await axios.post('/addtodo', {
         title,
         userId
     })
     input.value = "";
 }
+
+const getTodos = async () => {
+    try {
+        const response = await axios.get('/gettodos');
+        const todos = (response.data.todos);
+        todos.forEach(todo =>{
+            const task = document.createElement('li');
+            const taskContent = document.createElement('span');
+            taskContent.innerText =  todo.title;
+            taskContent.contentEditable = true;
+            
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = "<i class='fa-solid fa-pen-to-square'></i>";
+        editBtn.classList.add("edit", "btn");
+        editBtn.addEventListener('click', function () {
+            taskContent.focus();
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
+        deleteBtn.classList.add("delete", "btn");
+        deleteBtn.addEventListener('click', function () {
+            task.remove();
+        });
+
+        task.appendChild(taskContent);
+        task.appendChild(editBtn);
+        task.appendChild(deleteBtn);
+        ul.appendChild(task);
+        });
+    } catch (error) {
+        console.error('Error fetching todos:', error);
+    }
+};
+
+getTodos();
+
 
 function handleKeyPress(event) {
     if (event.keyCode === 13) {
@@ -55,7 +92,7 @@ function handleKeyPress(event) {
 
 btn.addEventListener('click', addTask);
 input.addEventListener('keypress', handleKeyPress);
-ul.addEventListener('click', function(e) {
+ul.addEventListener('click', function (e) {
     if (e.target.tagName === "LI") {
         e.target.classList.toggle("checked");
     }
