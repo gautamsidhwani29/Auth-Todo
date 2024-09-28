@@ -43,7 +43,7 @@ This is a Todo application built with Express.js, MongoDB, and JWT for authentic
    ```plaintext
    MONGO_URL=<your_mongo_db_connection_string>
    SECRET_KEY=<your_secret_key>
-   PORT=5000
+   PORT=3000
    ```
 
 4. **Start the server**:
