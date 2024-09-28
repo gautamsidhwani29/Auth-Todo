@@ -2,7 +2,7 @@ const input = document.querySelector("#ipbox");
 const ul = document.querySelector("ul");
 const btn = document.querySelector(".btn");
 
-function addTask() {
+const addTask = async ()=> {
     if (input.value === '') {
         alert("Add a valid Task");
     } else {
@@ -37,6 +37,13 @@ function addTask() {
         task.appendChild(deleteBtn);
         ul.appendChild(task);
     }
+    const title = input.value
+    const response = await axios.get('/authorized');
+    const userId = response.data.user.id;
+    await axios.post('/addtodo',{
+        title,
+        userId
+    })
     input.value = "";
 }
 

@@ -149,10 +149,10 @@ app.get('/todo', authenticate, (req, res) => {
 
 
 app.get('/authorized', authenticate, reqDetailLogger, (req, res) => {
-    const username = req.user.username;
-    console.log(username);
+    const user = req.user;
+    console.log(user);
     res.json({
-        username
+        user
     })
 })
 
@@ -160,7 +160,7 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
     try {
         const user = req.user;
         const userId = user.id;
-        console.log(user)
+        // console.log(user)
         const { title } = req.body;
 
         if (!title) {
@@ -169,7 +169,8 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
             }); 
         }
 
-        const response = await TodoModel.create({ title,
+        const response = await TodoModel.create({
+            title,
             userId
          });
 
@@ -185,6 +186,10 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
         });
     }
 });
+
+app.get('/gettodos',authenticate,reqDetailLogger,(req,res)=>{
+
+})
 
 
 app.post('/logout', reqDetailLogger, (req, res) => {

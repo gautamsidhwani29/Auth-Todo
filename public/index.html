@@ -33,9 +33,9 @@
         const greet = async () => {
             try {
                 const response = await axios.get('/authorized')
-                let username = response.data.username;;
+                let user = response.data.user;
                 const h1 = document.querySelector('.greet');
-                h1.textContent = `Welcome ${username}!` ;
+                h1.textContent = `Welcome ${user.username}!` ;
                 document.querySelector('.container').prepend(h1);
             }
             catch (e) {
