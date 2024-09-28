@@ -83,6 +83,8 @@
         const response = await axios.get('/authorized');
         let user = response.data;
         const h1 = document.querySelector('.greet');
+        const h3 = document.querySelector('.pfpText');
+        h3.textContent = user.userDetails.username;
         h1.textContent = `Welcome ${user.userDetails.username}!`;
     } catch (e) {
         console.error("Error fetching user data:", e);
