@@ -1,4 +1,4 @@
-## Practing MEN of MERN  
+## Practicing MEN of MERN  
 Implemented Rate Limiting Through a Middleware using the package : express-rate-limit
 Implemented Schema Validation using zod
 Hashed and salted the password before storing it to database
