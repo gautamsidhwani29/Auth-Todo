@@ -164,7 +164,6 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
     try {
         const user = req.user;
         const userId = user.id;
-        // console.log(user)
         const { title } = req.body;
 
         if (!title) {
@@ -180,7 +179,8 @@ app.post('/addtodo', authenticate, reqDetailLogger, async (req, res) => {
 
         if (response) {
             return res.status(201).json({
-                message: `${title} added successfully`
+                message: `${title} added successfully`,
+                response,
             });
         }
     } catch (e) {
@@ -204,8 +204,9 @@ app.get('/gettodos', authenticate, reqDetailLogger, async (req, res) => {
 })
 
 app.delete('/deletetodo', authenticate, reqDetailLogger, async(req, res) => {
-    const { todoId } = req.body;
-
+    const body = req.body;
+    console.log(body);
+    const {todoId}  = body;
     if (!todoId) {
         return res.status(400).json({ error: "Todo ID is required" });
     }

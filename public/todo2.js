@@ -15,31 +15,56 @@ const addTask = async (task) => {
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
     deleteBtn.classList.add("delete", "btn");
-    deleteBtn.addEventListener('click', () => {
-        taskElement.remove();
-    });
 
-    taskElement.appendChild(taskContent);
-    taskElement.appendChild(deleteBtn);
-    ul.appendChild(taskElement);
+    try {
+        const response = await axios.get('/authorized');
+        const user = response.data;
+        const userId = user.userDetails.id;
 
-    const response = await axios.get('/authorized');
-    const userId = response.data.user.id;
-    await axios.post('/addtodo', { title: task, userId });
+        const addTodoResponse = await axios.post('/addtodo', { title: task, userId });
+        // console.log(addTodoResponse.data.response._id);
+        const todoId = addTodoResponse.data.response._id
 
-    input.value = "";
-}
+        deleteBtn.addEventListener('click', async () => {
+            try {
+                await axios.delete('http://localhost:3000/deletetodo', {
+                    data: { todoId: todoId }
+                });
+                taskElement.remove(); // Remove the task element from the UI
+            } catch (error) {
+                console.error("Error deleting task:", error);
+            }
+        });
 
-const renderTasks = async (todo,todoId) => {
+        taskElement.appendChild(taskContent);
+        taskElement.appendChild(deleteBtn);
+        ul.appendChild(taskElement);
+
+        input.value = "";
+    } catch (error) {
+        console.error("Error adding task:", error);
+    }
+};
+
+const renderTasks = async (todo) => {
     const taskElement = document.createElement('li');
     const taskContent = document.createElement('span');
     taskContent.innerText = todo.title;
+    const todoId = todo._id;
 
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
     deleteBtn.classList.add("delete", "btn");
-    deleteBtn.addEventListener('click', () => {
-        taskElement.remove();
+
+    deleteBtn.addEventListener('click', async () => {
+        try {
+            await axios.delete('http://localhost:3000/deletetodo', {
+                data: { todoId: todoId }
+            });
+            taskElement.remove(); // Remove the task element from the UI
+        } catch (error) {
+            console.error("Error deleting task:", error);
+        }
     });
 
     taskElement.appendChild(taskContent);
