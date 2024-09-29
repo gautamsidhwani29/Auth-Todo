@@ -22,7 +22,7 @@ const addTask = async (task) => {
         const userId = user.userDetails.id;
 
         const addTodoResponse = await axios.post('/addtodo', { title: task, userId });
-        // console.log(addTodoResponse.data.response._id);
+
         const todoId = addTodoResponse.data.response._id
 
         deleteBtn.addEventListener('click', async () => {
@@ -30,7 +30,7 @@ const addTask = async (task) => {
                 await axios.delete('http://localhost:3000/deletetodo', {
                     data: { todoId: todoId }
                 });
-                taskElement.remove(); // Remove the task element from the UI
+                taskElement.remove();
             } catch (error) {
                 console.error("Error deleting task:", error);
             }
@@ -61,7 +61,7 @@ const renderTasks = async (todo) => {
             await axios.delete('http://localhost:3000/deletetodo', {
                 data: { todoId: todoId }
             });
-            taskElement.remove(); // Remove the task element from the UI
+            taskElement.remove();
         } catch (error) {
             console.error("Error deleting task:", error);
         }
