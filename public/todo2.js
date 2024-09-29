@@ -8,49 +8,31 @@ const addTask = async (task) => {
         return;
     }
 
-    const taskElement = document.createElement('li');
-    const taskContent = document.createElement('span');
-    taskContent.innerText = task;
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
-    deleteBtn.classList.add("delete", "btn");
-
     try {
         const response = await axios.get('/authorized');
-        const user = response.data;
-        const userId = user.userDetails.id;
+        const user = response.data.userDetails;
+        const userId = user.id;
 
         const addTodoResponse = await axios.post('/addtodo', { title: task, userId });
+        const todoId = addTodoResponse.data.response._id;
 
-        const todoId = addTodoResponse.data.response._id
-
-        deleteBtn.addEventListener('click', async () => {
-            try {
-                await axios.delete('http://localhost:3000/deletetodo', {
-                    data: { todoId: todoId }
-                });
-                taskElement.remove();
-            } catch (error) {
-                console.error("Error deleting task:", error);
-            }
-        });
-
-        taskElement.appendChild(taskContent);
-        taskElement.appendChild(deleteBtn);
-        ul.appendChild(taskElement);
-
+        renderTask(todoId, task, false);
         input.value = "";
     } catch (error) {
         console.error("Error adding task:", error);
     }
 };
 
-const renderTasks = async (todo) => {
+const renderTask = (todoId, title, isCompleted) => {
     const taskElement = document.createElement('li');
     const taskContent = document.createElement('span');
-    taskContent.innerText = todo.title;
-    const todoId = todo._id;
+    taskContent.innerText = title;
+
+    if (isCompleted) {
+        taskElement.classList.add('checked');
+    }
+
+    taskElement.setAttribute('data-id', todoId);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
@@ -58,31 +40,37 @@ const renderTasks = async (todo) => {
 
     deleteBtn.addEventListener('click', async () => {
         try {
-            await axios.delete('http://localhost:3000/deletetodo', {
-                data: { todoId: todoId }
-            });
+            await axios.delete('/deletetodo', { data: { todoId } });
             taskElement.remove();
         } catch (error) {
             console.error("Error deleting task:", error);
         }
     });
 
+    taskElement.addEventListener('click', async () => {
+        const checked = taskElement.classList.toggle('checked');
+        try {
+            await axios.put('/updatetodo', { todoId, checked });
+            console.log(checked ? 'The item is now checked' : 'The item is now unchecked');
+        } catch (error) {
+            console.error("Error updating task:", error);
+        }
+    });
+
     taskElement.appendChild(taskContent);
     taskElement.appendChild(deleteBtn);
     ul.appendChild(taskElement);
-}
+};
 
 const getTodos = async () => {
     try {
         const response = await axios.get('/gettodos');
         const todos = response.data.todos;
-        todos.forEach(todo => renderTasks(todo));
+        todos.forEach(todo => renderTask(todo._id, todo.title, todo.isCompleted));
     } catch (e) {
         console.log("Error fetching todos", e);
     }
 };
-
-getTodos();
 
 btn.addEventListener('click', () => {
     addTask(input.value);
@@ -94,3 +82,5 @@ input.addEventListener('keypress', (event) => {
         addTask(input.value);
     }
 });
+
+getTodos();

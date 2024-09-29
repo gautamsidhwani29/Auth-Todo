@@ -94,8 +94,8 @@ app.post('/signup', reqDetailLogger, async (req, res) => {
             email,
             password: hashedPassword,
         });
-        return res.status(201).json({ 
-            message: 'User created successfully', 
+        return res.status(201).json({
+            message: 'User created successfully',
             username: user.username,
             profileImageUrl: user.profileImageUrl
         });
@@ -151,12 +151,12 @@ app.get('/todo', authenticate, (req, res) => {
 })
 
 
-app.get('/authorized', authenticate, reqDetailLogger, async(req, res) => {
+app.get('/authorized', authenticate, reqDetailLogger, async (req, res) => {
     const user = req.user;
-    const userDetails  = await UserModel.findById(user.id);
+    const userDetails = await UserModel.findById(user.id);
     // console.log(userDetails); 
     res.json({
-        userDetails : userDetails
+        userDetails: userDetails
     })
 })
 
@@ -203,10 +203,10 @@ app.get('/gettodos', authenticate, reqDetailLogger, async (req, res) => {
     }
 })
 
-app.delete('/deletetodo', authenticate, reqDetailLogger, async(req, res) => {
+app.delete('/deletetodo', authenticate, reqDetailLogger, async (req, res) => {
     const body = req.body;
     console.log(body);
-    const {todoId}  = body;
+    const { todoId } = body;
     if (!todoId) {
         return res.status(400).json({ error: "Todo ID is required" });
     }
@@ -224,6 +224,22 @@ app.delete('/deletetodo', authenticate, reqDetailLogger, async(req, res) => {
         res.status(500).json({ error: "An error occurred while deleting the todo" });
     }
 });
+
+app.put('/updatetodo', authenticate, async (req, res) => {
+    const { todoId, checked } = req.body;
+    try {
+        const todo = await TodoModel.findByIdAndUpdate(todoId, { isCompleted: checked }, { new: true });
+        if (!todo) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+        res.json({ message: 'Todo updated successfully', todo });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating todo', error });
+    }
+});
+
+
+
 
 
 app.post('/logout', reqDetailLogger, (req, res) => {
