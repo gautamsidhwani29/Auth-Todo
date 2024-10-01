@@ -74,7 +74,8 @@ app.get('/home', reqDetailLogger, (req, res) => {
 app.post('/signup', reqDetailLogger, async (req, res) => {
     try {
         const { success, error, data } = signupSchema.safeParse(req.body);
-        const { username, email, password } = data;
+        const { username, email, password, gender } = data;
+        console.log(data)
 
         const existingUser = await UserModel.findOne({
             where: {
@@ -94,11 +95,11 @@ app.post('/signup', reqDetailLogger, async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            gender
         });
         return res.status(201).json({
             message: 'User created successfully',
             username: user.username,
-            profileImageUrl: user.profileImageUrl
         });
     } catch (error) {
         return res.status(500).json({ message: 'Server error', error });

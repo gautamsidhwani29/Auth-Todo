@@ -82,6 +82,25 @@
             text-decoration: underline;
             cursor: pointer;
         }
+
+        .gender-label {
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+            color: #ffffff;
+        }
+
+        .gender-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .gender-container label {
+            color: #ffffff;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -93,6 +112,16 @@
             <input type="text" id="signUpUsername" placeholder="Username" required />
             <input type="email" id="signUpEmail" placeholder="Email" required />
             <input type="password" id="signUpPassword" placeholder="Password" required />
+            <label class="gender-label">Gender</label>
+            <div class="gender-container">
+                <label>
+                    <input type="radio" name="gender" value="male" required /> Male
+                </label>
+                <label>
+                    <input type="radio" name="gender" value="female" required /> Female
+                </label>
+            </div>
+
             <button type="submit">Sign Up</button>
             <p>Already have an account? <a onclick="login()">Login here</a></p>
             <div id="message" class="error"></div>
@@ -110,13 +139,15 @@
             const username = document.getElementById('signUpUsername').value;
             const email = document.getElementById('signUpEmail').value;
             const password = document.getElementById('signUpPassword').value;
+            const gender = document.querySelector('input[name="gender"]:checked').value; 
             const messageDiv = document.getElementById('message');
 
             try {
                 const response = await axios.post('/signup', {
                     username,
                     email,
-                    password
+                    password,
+                    gender 
                 });
 
                 messageDiv.textContent = response.data.message + " Redirecting to Login...";

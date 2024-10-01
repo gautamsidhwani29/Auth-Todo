@@ -55,12 +55,11 @@
 
 <body>
     <div id="profile-container">
-        <img id="profile-pic" src="pfp.png"
-        alt="Profile Picture" />
+        <img id="profile-pic" alt="Profile Picture" />
         <h3 class="pfpText"></h3>
         <input type="file" id="profile-upload" accept="image/*" />
     </div>
-    
+
 
     <button class="logout" onclick="logout()">Logout</button>
     <h1 class="greet"></h1>
@@ -79,20 +78,31 @@
     <script src="todo2.js"></script>
 
     <script>
+        const imageUrl = document.getElementById('profile-pic');
+        // console.log(imageUrl.classList)
         const greet = async () => {
-    try {
-        const response = await axios.get('/authorized');
-        let user = response.data;
-        const h1 = document.querySelector('.greet');
-        const h3 = document.querySelector('.pfpText');
-        h3.textContent = user.userDetails.username;
-        h1.textContent = `Welcome ${user.userDetails.username}!`;
-    } catch (e) {
-        console.error("Error fetching user data:", e);
-    }
-};
+            try {
+                const response = await axios.get('/authorized');
+                let user = response.data;
+                const gender = user.userDetails.gender;
+                // console.log(gender)
+                if(gender === 'male'){
+                    imageUrl.setAttribute('src', 'malepfp.png');
+                    // console.log(imageUrl.getAttribute('src'))
+                }
+                else{
+                    imageUrl.setAttribute('src', 'femalepfp.jpeg');
+                }
+                const h1 = document.querySelector('.greet');
+                const h3 = document.querySelector('.pfpText');
+                h3.textContent = user.userDetails.username;
+                h1.textContent = `Welcome ${user.userDetails.username}!`;
+            } catch (e) {
+                console.error("Error fetching user data:", e);
+            }
+        };
 
-greet();
+        greet();
 
         const logout = async () => {
             await axios.post('/logout');
