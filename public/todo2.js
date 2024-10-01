@@ -38,6 +38,10 @@ const renderTask = (todoId, title, isCompleted) => {
     deleteBtn.innerHTML = "<i class='fa-solid fa-trash'></i>";
     deleteBtn.classList.add("delete", "btn");
 
+    const editBtn = document.createElement('button');
+    editBtn.innerHTML = "<i class='fa-solid fa-edit'></i>";
+    editBtn.classList.add("edit", "btn");
+
     deleteBtn.addEventListener('click', async () => {
         try {
             await axios.delete('/deletetodo', { data: { todoId } });
@@ -47,20 +51,63 @@ const renderTask = (todoId, title, isCompleted) => {
         }
     });
 
+    editBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        editTask(taskContent, todoId);
+    });
+
     taskElement.addEventListener('click', async () => {
         const checked = taskElement.classList.toggle('checked');
         try {
             await axios.put('/updatetodo', { todoId, checked });
-            console.log(checked ? 'The item is now checked' : 'The item is now unchecked');
         } catch (error) {
             console.error("Error updating task:", error);
         }
     });
 
     taskElement.appendChild(taskContent);
+    taskElement.appendChild(editBtn);
     taskElement.appendChild(deleteBtn);
+
     ul.appendChild(taskElement);
 };
+
+const editTask = async (taskContent, todoId) => {
+    const currentText = taskContent.innerText;
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.value = currentText;
+    taskContent.innerHTML = '';
+    taskContent.appendChild(inputField);
+    console.log(todoId);
+
+    inputField.addEventListener('blur', async () => {
+        title = inputField.value;
+        if (title.trim() !== "") {
+            taskContent.innerText = title;
+            try {
+                await axios.put('/edittodo', {
+                    title,
+                    todoId,
+                });
+            } catch (error) {
+                console.error("Error updating task:", error);
+                taskContent.innerText = currentText;
+            }
+        } else {
+            taskContent.innerText = currentText;
+        }
+    });
+
+    inputField.addEventListener('keypress', async (event) => {
+        if (event.key === 'Enter') {
+            inputField.blur();
+        }
+    });
+
+    inputField.focus();
+};
+
 
 const getTodos = async () => {
     try {

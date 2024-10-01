@@ -15,6 +15,7 @@ import { Op } from 'sequelize';
 import { authenticate } from './authenticate.js';
 const port = process.env.PORT;
 import { fileURLToPath } from 'url';
+// import {nodemailer} from 'nodemailer'
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -154,7 +155,6 @@ app.get('/todo', authenticate, (req, res) => {
 app.get('/authorized', authenticate, reqDetailLogger, async (req, res) => {
     const user = req.user;
     const userDetails = await UserModel.findById(user.id);
-    // console.log(userDetails); 
     res.json({
         userDetails: userDetails
     })
@@ -205,7 +205,7 @@ app.get('/gettodos', authenticate, reqDetailLogger, async (req, res) => {
 
 app.delete('/deletetodo', authenticate, reqDetailLogger, async (req, res) => {
     const body = req.body;
-    console.log(body);
+    // console.log(body);
     const { todoId } = body;
     if (!todoId) {
         return res.status(400).json({ error: "Todo ID is required" });
@@ -238,6 +238,25 @@ app.put('/updatetodo', authenticate, async (req, res) => {
     }
 });
 
+
+app.put('/edittodo', authenticate, reqDetailLogger, async (req, res) => {
+    try {
+        const { title, todoId } = req.body;
+        const updatedTodo = await TodoModel.findByIdAndUpdate(todoId, { title: title }, { new: true });
+        if(updatedTodo){
+            console.log("Todo Updated Successfully")
+        }
+        else{
+            console.log("Not updated")
+        }
+    }
+    catch (e) {
+        res.json({
+            message: e
+        })
+    }
+
+})
 
 
 

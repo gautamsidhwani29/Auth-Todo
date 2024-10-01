@@ -131,3 +131,29 @@ background-color: yellowgreen;
         outline: none;
         background: transparent;                
     }
+
+    #editable-text {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 15px 0;
+        transition: background-color 0.3s;
+    }
+    
+    #editable-text:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    input#text-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: white;
+        font-size: 16px;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    
