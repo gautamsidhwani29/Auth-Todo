@@ -15,7 +15,6 @@ import { Op } from 'sequelize';
 import { authenticate } from './authenticate.js';
 const port = process.env.PORT;
 import { fileURLToPath } from 'url';
-// import {nodemailer} from 'nodemailer'
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
