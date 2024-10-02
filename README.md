@@ -1,6 +1,6 @@
 
 
-# README for Todo Application
+# README 
 
 ## Overview
 
