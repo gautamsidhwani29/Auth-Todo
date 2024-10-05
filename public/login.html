@@ -15,7 +15,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            /* background-image: url('./img.jpg'); */
+            background-image: url('./img.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -85,7 +85,6 @@
         <p>Don't have an account? <a onclick="signup()" class="signup">Sign Up</a></p>
     </form>
 
-
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         const signup = () => {
@@ -100,14 +99,9 @@
 
             axios.post('/user/login', data)
                 .then(response => {
-                    if (response.status === 200) {
-                        window.location.href = '/todo/todo';
-                    } else {
-                        alert('Login failed. Please check your credentials.');
-                    }
+                    window.location.href = '/todo/todo';
                 })
                 .catch(error => {
-                    console.error('Error:', error);
                     alert('Login failed. Please check your credentials.');
                 });
         });

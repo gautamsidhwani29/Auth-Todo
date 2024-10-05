@@ -36,7 +36,7 @@ userRouter.post('/signup', async (req, res) => {
             return res.status(409).json({ message: "Email or Username Taken" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10); 
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await UserModel.create({
             username,
             email,
@@ -55,26 +55,24 @@ userRouter.post('/signup', async (req, res) => {
 
 userRouter.post('/login', async (req, res) => {
     const { email, password } = req.body;
+
     try {
         const user = await UserModel.findOne({ where: { email } });
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
         const matchedPassword = await bcrypt.compare(password, user.password);
+        console.log(matchedPassword);
         if (!matchedPassword) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
-        const accessToken = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET_KEY, { expiresIn: '60m' });
-        const refreshToken = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET_KEY, { expiresIn: '7d' });
-
+        const accessToken = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET_KEY);
+        const refreshToken = jwt.sign({ id: user.id, username: user.username }, process.env.SECRET_KEY);
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-
         res.cookie('token', accessToken, {
             httpOnly: true,
             sameSite: 'strict',
@@ -85,8 +83,7 @@ userRouter.post('/login', async (req, res) => {
             message: "Logged In Successfully!",
             username: user.username
         });
-    } catch (e) {
-        console.error('Login error:', e);
+    } catch (error) {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });

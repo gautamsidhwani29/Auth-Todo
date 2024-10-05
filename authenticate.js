@@ -8,7 +8,7 @@ export const authenticate = (req, res, next) => {
 
     if (!token) {
         console.log("Login first")
-        res.redirect('/login');
+        res.redirect('/user/login');
     }
 
     try {
