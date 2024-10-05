@@ -9,11 +9,11 @@ const addTask = async (task) => {
     }
 
     try {
-        const response = await axios.get('/authorized');
+        const response = await axios.get('/user/authorized');
         const user = response.data.userDetails;
         const userId = user.id;
 
-        const addTodoResponse = await axios.post('/addtodo', { title: task, userId });
+        const addTodoResponse = await axios.post('/todo/addtodo', { title: task, userId });
         const todoId = addTodoResponse.data.response._id;
 
         renderTask(todoId, task, false);
@@ -44,7 +44,7 @@ const renderTask = (todoId, title, isCompleted) => {
 
     deleteBtn.addEventListener('click', async () => {
         try {
-            await axios.delete('/deletetodo', { data: { todoId } });
+            await axios.delete('/todo/deletetodo', { data: { todoId } });
             taskElement.remove();
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -59,7 +59,7 @@ const renderTask = (todoId, title, isCompleted) => {
     taskElement.addEventListener('click', async () => {
         const checked = taskElement.classList.toggle('checked');
         try {
-            await axios.put('/updatetodo', { todoId, checked });
+            await axios.put('/todo/updatetodo', { todoId, checked });
         } catch (error) {
             console.error("Error updating task:", error);
         }
@@ -86,7 +86,7 @@ const editTask = async (taskContent, todoId) => {
         if (title.trim() !== "") {
             taskContent.innerText = title;
             try {
-                await axios.put('/edittodo', {
+                await axios.put('/todo/edittodo', {
                     title,
                     todoId,
                 });
@@ -111,7 +111,7 @@ const editTask = async (taskContent, todoId) => {
 
 const getTodos = async () => {
     try {
-        const response = await axios.get('/gettodos');
+        const response = await axios.get('/todo/gettodos');
         const todos = response.data.todos;
         todos.forEach(todo => renderTask(todo._id, todo.title, todo.isCompleted));
     } catch (e) {

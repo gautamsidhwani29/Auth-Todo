@@ -79,16 +79,13 @@
 
     <script>
         const imageUrl = document.getElementById('profile-pic');
-        // console.log(imageUrl.classList)
         const greet = async () => {
             try {
-                const response = await axios.get('/authorized');
+                const response = await axios.get('/user/authorized');
                 let user = response.data;
                 const gender = user.userDetails.gender;
-                // console.log(gender)
                 if(gender === 'male'){
                     imageUrl.setAttribute('src', 'malepfp.png');
-                    // console.log(imageUrl.getAttribute('src'))
                 }
                 else{
                     imageUrl.setAttribute('src', 'femalepfp.jpeg');
@@ -105,9 +102,9 @@
         greet();
 
         const logout = async () => {
-            await axios.post('/logout');
+            await axios.post('/user/logout');
             alert("You have been Logged Out Redirecting to the Login Page!");
-            window.location.href = '/login';
+            window.location.href = '/user/login';
         }       
     </script>
 

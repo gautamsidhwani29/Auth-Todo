@@ -15,15 +15,13 @@ const UserSchema = new Schema({
     gender: { type: String, enum: ['male', 'female', 'other'], required: true }
 });
 
-
-export const UserModel = mongoose.model('sudouser', UserSchema);
-
 const TodosSchema = new Schema({
     title: { type: String, required: true },
     isCompleted: { type: Boolean, default: false },
     userId: { type: ObjectId, ref: 'UserModel', required: true }
 })
 
+export const UserModel = mongoose.model('sudouser', UserSchema);
 export const TodoModel = mongoose.model('Todo', TodosSchema);
 
 

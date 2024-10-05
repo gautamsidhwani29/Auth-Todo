@@ -16,7 +16,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: url(img.jpg);
+            background-image: url('img.jpg');
             background-size: cover;
         }
 
@@ -130,7 +130,7 @@
 
     <script>
         const login = () => {
-            window.location.href = '/login';
+            window.location.href = '/user/login';
         }
 
         document.getElementById('signUpForm').addEventListener('submit', async (event) => {
@@ -143,7 +143,7 @@
             const messageDiv = document.getElementById('message');
 
             try {
-                const response = await axios.post('/signup', {
+                const response = await axios.post('/user/signup', {
                     username,
                     email,
                     password,

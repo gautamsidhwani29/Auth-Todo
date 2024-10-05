@@ -15,7 +15,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: url(img.jpg);
+            /* background-image: url('./img.jpg'); */
             background-size: cover;
             background-position: center;
         }
@@ -23,19 +23,19 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px; 
+            gap: 15px;
             padding: 30px;
             border-radius: 8px;
             background-color: #1e1e1e;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             width: 100%;
-            max-width: 400px; 
+            max-width: 400px;
             box-sizing: border-box;
         }
 
         h2 {
             text-align: center;
-            font-size: 1.8rem; 
+            font-size: 1.8rem;
             margin-bottom: 20px;
         }
 
@@ -85,9 +85,11 @@
         <p>Don't have an account? <a onclick="signup()" class="signup">Sign Up</a></p>
     </form>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         const signup = () => {
-            window.location.href = '/signup';
+            window.location.href = '/user/signup';
         }
 
         document.getElementById('loginForm').addEventListener('submit', function (event) {
@@ -96,22 +98,17 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
-            fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
+            axios.post('/user/login', data)
                 .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/todo';
+                    if (response.status === 200) {
+                        window.location.href = '/todo/todo';
                     } else {
                         alert('Login failed. Please check your credentials.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('Login failed. Please check your credentials.');
                 });
         });
     </script>
